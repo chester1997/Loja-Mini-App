@@ -1,38 +1,78 @@
-export default function Home() {
-  return (
-    <div className="flex flex-col w-full h-full">
-      {/* Fake Hero Banner */}
-      <section className="relative w-full h-[60vh] md:h-[80vh] bg-neutral-900">
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 md:w-2/3 lg:w-1/2 flex flex-col justify-end">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">O Amor Depois do Adeus</h1>
-          <p className="text-gray-300 text-sm md:text-base mb-6 line-clamp-3">
-            Uma história envolvente sobre recomeços, destino e a força inabalável 
-            do amor. Prepare-se para se emocionar nesta produção original exclusiva.
-          </p>
-          <div className="flex space-x-4">
-            <button className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition">
-              Assistir
-            </button>
-            <button className="bg-white/20 text-white px-6 py-2 rounded font-semibold hover:bg-white/30 backdrop-blur-sm transition">
-              Mais Detalhes
-            </button>
-          </div>
-        </div>
-      </section>
+import { prisma } from "@/lib/prisma";
+import HeroBanner from "@/components/home/HeroBanner";
+import SectionSlider from "@/components/home/SectionSlider";
 
-      {/* Continue Watching Mock */}
-      <section className="w-full px-6 py-8">
-        <h2 className="text-lg font-semibold mb-4 text-white">Continue Assistindo</h2>
-        <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-          <div className="min-w-[160px] md:min-w-[240px] aspect-video bg-neutral-800 rounded relative overflow-hidden group cursor-pointer">
-             <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-300" />
-             <div className="absolute bottom-0 w-full h-1 bg-gray-600">
-               <div className="h-full bg-red-600 w-[63%]" />
-             </div>
-          </div>
+export const revalidate = 60; // revalidate every 60 seconds
+
+export default async function Home() {
+  // 1. Fetch Active Hero Banners
+  const banners = await prisma.homeBanner.findMany({
+    where: { active: true },
+    orderBy: { position: "asc" },
+    include: {
+      content: {
+        select: { slug: true }
+      }
+    }
+  });
+
+  // 2. Fetch Active Sections with related Content
+  const sections = await prisma.homeSection.findMany({
+    where: { active: true },
+    orderBy: { position: "asc" },
+    include: {
+      category: {
+        include: {
+          contents: {
+            include: {
+              content: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const mainBanner = banners[0];
+
+  return (
+    <div className="flex flex-col w-full min-h-screen">
+      
+      {/* HERO BANNER */}
+      {mainBanner ? (
+        <HeroBanner banner={mainBanner} />
+      ) : (
+        <div className="w-full h-[60vh] bg-neutral-900 flex items-center justify-center">
+          <p className="text-gray-500">Nenhum destaque configurado.</p>
         </div>
-      </section>
+      )}
+
+      {/* DYNAMIC SECTIONS */}
+      <div className="mt-[-2rem] relative z-10">
+        {sections.map((section) => {
+          let items: any[] = [];
+          
+          if (section.type === "CATEGORY" && section.category) {
+            // Extract contents linked to this category
+            items = section.category.contents
+              .map(cc => cc.content)
+              .filter(c => c.active)
+              .slice(0, section.limit);
+          }
+          
+          // ToDo: Implement logic for LATEST, BEST_SELLERS, CONTINUE_WATCHING
+
+          if (items.length === 0) return null;
+
+          return (
+            <SectionSlider 
+              key={section.id} 
+              title={section.title} 
+              contents={items} 
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

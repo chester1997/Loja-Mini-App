@@ -7,8 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth Models
-
+// -------------------------------------------------------------
+// NEXTAUTH MODELS
+// -------------------------------------------------------------
 model Account {
   id                 String  @id @default(cuid())
   userId             String  @map("user_id")
@@ -62,8 +63,9 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-// App Models (Phase 1)
-
+// -------------------------------------------------------------
+// APP MODELS (Phase 1)
+// -------------------------------------------------------------
 model Profile {
   id         String   @id @default(cuid())
   userId     String   @unique @map("user_id")
@@ -75,4 +77,98 @@ model Profile {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
+}
+
+// -------------------------------------------------------------
+// APP MODELS (Phase 2 - Home & Content)
+// -------------------------------------------------------------
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  imageUrl    String?  @map("image_url")
+  position    Int      @default(0)
+  active      Boolean  @default(true)
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  contents    ContentCategory[]
+  sections    HomeSection[]
+
+  @@map("categories")
+}
+
+model Content {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  description      String?  @db.Text
+  shortDescription String?  @map("short_description") @db.Text
+  coverUrl         String?  @map("cover_url")
+  bannerUrl        String?  @map("banner_url")
+  trailerUrl       String?  @map("trailer_url")
+  videoUrl         String?  @map("video_url")
+  price            Decimal? @db.Decimal(10, 2)
+  active           Boolean  @default(true)
+  featured         Boolean  @default(false)
+  publishedAt      DateTime? @map("published_at")
+  
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  categories       ContentCategory[]
+  homeBanners      HomeBanner[]
+
+  @@map("contents")
+}
+
+model ContentCategory {
+  contentId  String @map("content_id")
+  categoryId String @map("category_id")
+
+  content    Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([contentId, categoryId])
+  @@map("content_categories")
+}
+
+model HomeSection {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  type       String   // e.g., CONTINUE_WATCHING, FEATURED, LATEST, CATEGORY, BEST_SELLERS, CUSTOM
+  categoryId String?  @map("category_id")
+  position   Int      @default(0)
+  active     Boolean  @default(true)
+  limit      Int      @default(10)
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("home_sections")
+}
+
+model HomeBanner {
+  id                  String   @id @default(cuid())
+  title               String?
+  subtitle            String?
+  description         String?  @db.Text
+  imageUrl            String?  @map("image_url")
+  contentId           String?  @map("content_id")
+  buttonPrimaryText   String?  @map("button_primary_text")
+  buttonSecondaryText String?  @map("button_secondary_text")
+  position            Int      @default(0)
+  active              Boolean  @default(true)
+
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  content             Content? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+
+  @@map("home_banners")
 }
