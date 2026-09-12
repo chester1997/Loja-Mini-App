@@ -7,9 +7,22 @@ import Header from "@/components/layout/Header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Loja Própria de Conteúdos",
-  description: "Plataforma premium para conteúdos digitais.",
+  title: "Lojinha Studio | Seus Conteúdos Exclusivos",
+  description: "Plataforma premium para você assistir seus conteúdos digitais com a melhor qualidade e experiência.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Lojinha Studio",
+  },
+  openGraph: {
+    title: "Lojinha Studio",
+    description: "Plataforma premium de conteúdos digitais",
+    url: "https://miniapp.com",
+    siteName: "Lojinha Studio",
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {

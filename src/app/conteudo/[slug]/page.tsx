@@ -6,6 +6,23 @@ import SectionSlider from "@/components/home/SectionSlider";
 
 export const revalidate = 60;
 
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const content = await prisma.content.findUnique({
+    where: { slug: params.slug },
+  });
+
+  if (!content) return { title: "Conteúdo não encontrado | Lojinha Studio" };
+
+  return {
+    title: `${content.title} | Lojinha Studio`,
+    description: content.shortDescription || content.description?.substring(0, 160),
+    openGraph: {
+      title: content.title,
+      images: [content.coverUrl || ""],
+    }
+  };
+}
+
 export default async function ContentPage({ params }: { params: { slug: string } }) {
   const content = await prisma.content.findUnique({
     where: { slug: params.slug },
