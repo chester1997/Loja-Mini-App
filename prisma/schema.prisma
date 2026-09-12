@@ -54,6 +54,7 @@ model User {
   purchases     Purchase[]
   watchProgress WatchProgress[]
   watchHistory  WatchHistory[]
+  payments      Payment[]
 
   @@map("users")
 }
@@ -198,25 +199,54 @@ model Favorite {
 }
 
 // -------------------------------------------------------------
-// APP MODELS (Phase 4 - User Area & Purchases)
+// APP MODELS (Phase 4 & 6 - User Area, Purchases & Payments)
 // -------------------------------------------------------------
 model Purchase {
   id          String   @id @default(cuid())
   userId      String   @map("user_id")
   contentId   String   @map("content_id")
-  paymentId   String?  @map("payment_id")
   amount      Decimal? @db.Decimal(10, 2)
   currency    String   @default("BRL")
-  status      String   @default("pending") // pending, paid, failed, refunded, cancelled
+  status      String   @default("pending") // pending, paid, cancelled, expired, refunded
   purchasedAt DateTime? @map("purchased_at")
+  paidAt      DateTime? @map("paid_at")
+  expiresAt   DateTime? @map("expires_at")
   
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   content     Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  payments    Payment[]
 
+  @@index([userId])
+  @@index([contentId])
+  @@index([status])
   @@map("purchases")
+}
+
+model Payment {
+  id                  String   @id @default(cuid())
+  purchaseId          String   @map("purchase_id")
+  userId              String   @map("user_id")
+  provider            String   @default("cora")
+  providerPaymentId   String   @map("provider_payment_id")
+  providerCode        String?  @map("provider_code")
+  amount              Decimal  @db.Decimal(10, 2)
+  status              String   @default("pending")
+  pixCopyPaste        String?  @map("pix_copy_paste") @db.Text
+  qrCodeUrl           String?  @map("qr_code_url") @db.Text
+  idempotencyKey      String   @unique @map("idempotency_key")
+  
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  paidAt              DateTime? @map("paid_at")
+
+  purchase            Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerPaymentId])
+  @@map("payments")
 }
 
 model WatchProgress {

@@ -97,9 +97,11 @@ export default async function ContentPage({ params }: { params: { slug: string }
                 <p className="text-3xl font-bold text-white mb-4">
                   {content.price ? `R$ ${content.price.toString().replace('.', ',')}` : "Grátis"}
                 </p>
-                <button className="w-full bg-red-600 text-white py-3 rounded font-bold hover:bg-red-700 transition">
-                  Comprar Agora
-                </button>
+                <Link href={`/checkout/${content.id}`} className="w-full">
+                  <button className="w-full bg-red-600 text-white py-3 rounded font-bold hover:bg-red-700 transition">
+                    Comprar Agora
+                  </button>
+                </Link>
               </>
             )}
 
