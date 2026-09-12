@@ -50,6 +50,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   profile       Profile?
+  favorites     Favorite[]
 
   @@map("users")
 }
@@ -120,6 +121,7 @@ model Content {
 
   categories       ContentCategory[]
   homeBanners      HomeBanner[]
+  favorites        Favorite[]
 
   @@map("contents")
 }
@@ -171,4 +173,20 @@ model HomeBanner {
   content             Content? @relation(fields: [contentId], references: [id], onDelete: SetNull)
 
   @@map("home_banners")
+}
+
+// -------------------------------------------------------------
+// APP MODELS (Phase 3 - Favorites)
+// -------------------------------------------------------------
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  contentId String   @map("content_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+  @@map("favorites")
 }
