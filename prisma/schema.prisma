@@ -51,6 +51,9 @@ model User {
   sessions      Session[]
   profile       Profile?
   favorites     Favorite[]
+  purchases     Purchase[]
+  watchProgress WatchProgress[]
+  watchHistory  WatchHistory[]
 
   @@map("users")
 }
@@ -122,6 +125,9 @@ model Content {
   categories       ContentCategory[]
   homeBanners      HomeBanner[]
   favorites        Favorite[]
+  purchases        Purchase[]
+  watchProgress    WatchProgress[]
+  watchHistory     WatchHistory[]
 
   @@map("contents")
 }
@@ -189,4 +195,58 @@ model Favorite {
 
   @@unique([userId, contentId])
   @@map("favorites")
+}
+
+// -------------------------------------------------------------
+// APP MODELS (Phase 4 - User Area & Purchases)
+// -------------------------------------------------------------
+model Purchase {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  contentId   String   @map("content_id")
+  paymentId   String?  @map("payment_id")
+  amount      Decimal? @db.Decimal(10, 2)
+  currency    String   @default("BRL")
+  status      String   @default("pending") // pending, paid, failed, refunded, cancelled
+  purchasedAt DateTime? @map("purchased_at")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@map("purchases")
+}
+
+model WatchProgress {
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  contentId        String   @map("content_id")
+  positionSeconds  Int      @default(0) @map("position_seconds")
+  durationSeconds  Int      @default(0) @map("duration_seconds")
+  progressPercentage Int    @default(0) @map("progress_percentage")
+  lastWatchedAt    DateTime @default(now()) @map("last_watched_at")
+  completed        Boolean  @default(false)
+  
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content          Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+  @@map("watch_progress")
+}
+
+model WatchHistory {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  contentId String   @map("content_id")
+  watchedAt DateTime @default(now()) @map("watched_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@map("watch_history")
 }
