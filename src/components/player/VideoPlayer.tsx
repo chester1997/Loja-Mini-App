@@ -15,7 +15,7 @@ export default function VideoPlayer({ contentId, videoUrl, title, initialPositio
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const [showControls, setShowControls] = useState(true);
-  const hideControlsTimeout = useRef<NodeJS.Timeout>();
+  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
