@@ -7,6 +7,8 @@ import { Home, Search, Heart, ShoppingBag, User } from "lucide-react";
 export default function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname.startsWith("/admin")) return null;
+
   const navItems = [
     { name: "Início", href: "/", icon: Home },
     { name: "Buscar", href: "/buscar", icon: Search },

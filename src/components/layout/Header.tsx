@@ -7,6 +7,8 @@ import { Search, Heart, ShoppingBag, User } from "lucide-react";
 export default function Header() {
   const pathname = usePathname();
 
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <header className="hidden md:flex fixed top-0 w-full h-16 bg-gradient-to-b from-black/80 to-transparent z-50 px-8 items-center justify-between">
       <div className="flex items-center space-x-8">
