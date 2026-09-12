@@ -36,7 +36,7 @@ export default async function HistoryPage() {
           {progresses.map((prog) => (
             <ContentCard 
               key={prog.id} 
-              content={prog.content} 
+              content={prog.content as any} 
               progress={prog.progressPercentage} 
             />
           ))}

@@ -7,7 +7,7 @@ interface ContentCardProps {
     title: string;
     slug: string;
     coverUrl?: string | null;
-    price?: number | null;
+    price?: any;
   };
   progress?: number; // 0 to 100
   purchased?: boolean;

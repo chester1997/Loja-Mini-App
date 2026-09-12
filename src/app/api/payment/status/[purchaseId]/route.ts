@@ -6,9 +6,10 @@ import { getPixCharge } from "@/lib/cora";
 
 export async function GET(
   req: Request,
-  { params }: { params: { purchaseId: string } }
+  { params }: { params: Promise<{ purchaseId: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +19,7 @@ export async function GET(
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const purchase = await prisma.purchase.findUnique({
-      where: { id: params.purchaseId },
+      where: { id: resolvedParams.purchaseId },
       include: {
         payments: {
           orderBy: { createdAt: "desc" },

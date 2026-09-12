@@ -35,7 +35,7 @@ export default async function FavoritesPage() {
       {favorites.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {favorites.map((fav) => (
-            <ContentCard key={fav.id} content={fav.content} />
+            <ContentCard key={fav.id} content={fav.content as any} />
           ))}
         </div>
       ) : (

@@ -51,7 +51,7 @@ export default async function SearchPage({
       {results.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {results.map((content) => (
-            <ContentCard key={content.id} content={content} />
+            <ContentCard key={content.id} content={content as any} />
           ))}
         </div>
       ) : (

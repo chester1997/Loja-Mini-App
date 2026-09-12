@@ -26,7 +26,7 @@ export default function SectionSlider({ title, contents }: SectionSliderProps) {
       >
         {contents.map((item) => (
           <div key={item.id} className="min-w-[140px] md:min-w-[180px] snap-start">
-            <ContentCard content={item} />
+            <ContentCard content={item as any} />
           </div>
         ))}
       </div>

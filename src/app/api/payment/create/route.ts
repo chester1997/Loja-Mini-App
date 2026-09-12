@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       amountInCents,
       internalCode: purchase.id,
       customerName: user.name || "Cliente Lojinha",
-      customerEmail: user.email,
+      customerEmail: user.email || "contato@miniapp.com",
       customerCpfCnpj: cpfCnpj || "00000000000", // Needs valid format in prod
       idempotencyKey
     });

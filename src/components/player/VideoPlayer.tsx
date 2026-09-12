@@ -24,7 +24,7 @@ export default function VideoPlayer({ contentId, videoUrl, title, initialPositio
     }
   }, [initialPosition]);
 
-  const saveProgress = async (completed = false) => {
+  const saveProgress = async (completed?: boolean) => {
     const video = videoRef.current;
     if (!video) return;
 
